@@ -16,18 +16,21 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
   const moves = history.map((squares, move) => {
-    
     let description;
-    if (move > 0) {
+    if (move > 0 && currentMove === move) {
+      return (
+        <li key={move}>
+          <div>You are at move # {move}</div>
+          <div>&nbsp;</div>
+        </li>
+    );
+    } else if (move > 0 && currentMove !== move) {
       description = 'Go to move #' + move;
+      return showMoveButton(move, description, jumpTo);
     } else {
       description = 'Go to game start';
+      return showMoveButton(move, description, jumpTo);
     }
-    return (
-      <li key={move}>
-        <button onClick={() => jumpTo(move)}>{description}</button>
-      </li>
-    );
   });
   return (
     <div className="game">
@@ -35,10 +38,19 @@ export default function Game() {
         <Board xIsNext={xIsNext} sqrs={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
-        <ol>{moves}</ol>
+        <ul>{moves}</ul>
       </div>
     </div>
   );
+}
+
+function showMoveButton(move, description, jumpTo) {
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+        <div>&nbsp;</div>   
+      </li>
+    );
 }
 
 function Square({ value, onSqrClik }) {
