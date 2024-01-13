@@ -1,5 +1,46 @@
 import React, { StrictMode } from "react";
 import { useState } from 'react';
+
+export default function Game() {
+  
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [currentMove, setCurrentMove] = useState(0);
+  const xIsNext = currentMove % 2 === 0;
+  const currentSquares = history[currentMove];
+  function handlePlay(nextSquares) {
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
+  }
+  function jumpTo(nextMove) {
+    setCurrentMove(nextMove);
+  }
+  const moves = history.map((squares, move) => {
+    
+    let description;
+    if (move > 0) {
+      description = 'Go to move #' + move;
+    } else {
+      description = 'Go to game start';
+    }
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  });
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board xIsNext={xIsNext} sqrs={currentSquares} onPlay={handlePlay} />
+      </div>
+      <div className="game-info">
+        <ol>{moves}</ol>
+      </div>
+    </div>
+  );
+}
+
 function Square({ value, onSqrClik }) {
   return (
     <button className="square" onClick={onSqrClik}>
@@ -7,11 +48,10 @@ function Square({ value, onSqrClik }) {
     </button>
   );
 }
-export default function Board() {
-  const [xIsNext, setXIsNext] = useState(true);
-  const [sqrs, setSqrs] = useState(Array(9).fill(null));
+
+function Board({ xIsNext, sqrs, onPlay }) {
   function do_Clik(i) {
-    if (sqrs[i]) {
+    if (sqrs[i] || calculateWinner(sqrs)) {
       return;
     }
     const nextSquares = sqrs.slice();
@@ -20,11 +60,18 @@ export default function Board() {
     } else {
       nextSquares[i] = "O";
     }
-    setSqrs(nextSquares);
-    setXIsNext(!xIsNext);
+    onPlay(nextSquares);
+  }
+  const winner = calculateWinner(sqrs);
+  let status;
+  if (winner) {
+    status = "Winner: " + winner;
+  } else {
+    status = "Next player: " + (xIsNext ? "X" : "O");
   }
   return (
     <>
+      <div className="status">{status}</div>
       <div className="board-row">
         <Square value={sqrs[0]} onSqrClik={() => do_Clik(0)} />
         <Square value={sqrs[1]} onSqrClik={() => do_Clik(1)} />
