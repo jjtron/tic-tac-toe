@@ -81,24 +81,19 @@ function Board({ xIsNext, sqrs, onPlay }) {
   } else {
     status = "Next player: " + (xIsNext ? "X" : "O");
   }
+  let boardSquares = [];
+  let boardRows = [];
+  for (let i = 0; i <= 2; i++){
+    for (let j = 0; j <= 2; j++){
+      boardSquares.push(<Square key={j} value={sqrs[j + 3 * i]} onSqrClik={() => do_Clik(j + 3 * i)} />);
+    }
+    boardRows.push(<div key={i} className="board-row">{boardSquares}</div>);
+    boardSquares = [];
+  }
   return (
     <>
       <div className="status">{status}</div>
-      <div className="board-row">
-        <Square value={sqrs[0]} onSqrClik={() => do_Clik(0)} />
-        <Square value={sqrs[1]} onSqrClik={() => do_Clik(1)} />
-        <Square value={sqrs[2]} onSqrClik={() => do_Clik(2)} />
-      </div>
-      <div className="board-row">
-        <Square value={sqrs[3]} onSqrClik={() => do_Clik(3)} />
-        <Square value={sqrs[4]} onSqrClik={() => do_Clik(4)} />
-        <Square value={sqrs[5]} onSqrClik={() => do_Clik(5)} />
-      </div>
-      <div className="board-row">
-        <Square value={sqrs[6]} onSqrClik={() => do_Clik(6)} />
-        <Square value={sqrs[7]} onSqrClik={() => do_Clik(7)} />
-        <Square value={sqrs[8]} onSqrClik={() => do_Clik(8)} />
-      </div>
+      {boardRows}
     </>
   );
 }
