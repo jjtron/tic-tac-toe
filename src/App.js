@@ -2,36 +2,49 @@ import React, { StrictMode } from "react";
 import { useState } from 'react';
 
 export default function Game() {
-  
+  const [sort, setSort] = useState(false);
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
-  function handlePlay(nextSquares) {
-    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
-    setHistory(nextHistory);
-    setCurrentMove(nextHistory.length - 1);
+  function handlePlay(nextSquares, noSort) {
+    if (noSort) {
+        const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+        setHistory(nextHistory);
+        setCurrentMove(nextHistory.length - 1);   
+    } else {
+        setSort(!sort);
+    }
   }
   function jumpTo(nextMove) {
     setCurrentMove(nextMove);
   }
-  const moves = history.map((squares, move) => {
-    let description;
-    if (move > 0 && currentMove === move) {
-      return (
-        <li key={move}>
-          <div>You are at move # {move}</div>
-          <div>&nbsp;</div>
-        </li>
-    );
-    } else if (move > 0 && currentMove !== move) {
-      description = 'Go to move #' + move;
-      return showMoveButton(move, description, jumpTo);
-    } else {
-      description = 'Go to game start';
-      return showMoveButton(move, description, jumpTo);
-    }
-  });
+  function mapHistory(history, sort) {
+      let theMap = history.map((squares, move) => {
+        let description;
+        if (move > 0 && currentMove === move) {
+          return (
+            <li key={move}>
+              <div>You are at move # {move}</div>
+              <div>&nbsp;</div>
+            </li>
+        );
+        } else if (move > 0 && currentMove !== move) {
+          description = 'Go to move #' + move;
+          return showMoveButton(move, description, jumpTo);
+        } else {
+          description = 'Go to game start';
+          return showMoveButton(move, description, jumpTo);
+        }
+      });
+      if (sort) {
+          return theMap.reverse();
+      } else {
+          return theMap;
+      }
+      
+  }
+  const moves = mapHistory(history, sort);
   return (
     <div className="game">
       <div className="game-board">
@@ -72,7 +85,10 @@ function Board({ xIsNext, sqrs, onPlay }) {
     } else {
       nextSquares[i] = "O";
     }
-    onPlay(nextSquares);
+    onPlay(nextSquares, true);
+  }
+  function onSort() {
+      onPlay(null, false);
   }
   const winner = calculateWinner(sqrs);
   let status;
@@ -94,6 +110,8 @@ function Board({ xIsNext, sqrs, onPlay }) {
     <>
       <div className="status">{status}</div>
       {boardRows}
+      <br></br>
+      <button onClick={onSort}>Sort Moves</button>
     </>
   );
 }
