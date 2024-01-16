@@ -6,12 +6,13 @@ export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
+  let isDraw = false;
   const currentSquares = history[currentMove];
   function handlePlay(nextSquares, noSort) {
     if (noSort) {
         const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
         setHistory(nextHistory);
-        setCurrentMove(nextHistory.length - 1);   
+        setCurrentMove(nextHistory.length - 1);
     } else {
         setSort(!sort);
     }
@@ -23,9 +24,18 @@ export default function Game() {
       let theMap = history.map((squares, move) => {
         let description;
         if (move > 0 && currentMove === move) {
+          let noWinMsg = "";
+          let w = calculateWinner(squares);
+          if (w[0] !== null) {
+          } else {
+            if (currentMove === 9) {
+                noWinMsg = ", and there is no winner.";
+                isDraw = true;
+            }
+          }
           return (
             <li key={move}>
-              <div>You are at move # {move}</div>
+              <div>You are at move # {move} {noWinMsg}</div>
               <div>&nbsp;</div>
             </li>
         );
@@ -48,7 +58,7 @@ export default function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} sqrs={currentSquares} onPlay={handlePlay} />
+        <Board xIsNext={xIsNext} sqrs={currentSquares} onPlay={handlePlay} isDraw={isDraw} />
       </div>
       <div className="game-info">
         <ul>{moves}</ul>
@@ -66,15 +76,15 @@ function showMoveButton(move, description, jumpTo) {
     );
 }
 
-function Square({ value, onSqrClik, sty }) {
+function Square({ value, onSqrClik, styleVar }) {
   return (
-    <button className="square" onClick={onSqrClik} style={sty}>
+    <button className="square" onClick={onSqrClik} style={styleVar}>
       {value}
     </button>
   );
 }
 
-function Board({ xIsNext, sqrs, onPlay }) {
+function Board({ xIsNext, sqrs, onPlay, isDraw }) {
   function do_Clik(i) {
     
     if (sqrs[i] || calculateWinner(sqrs)[0]) {
@@ -98,6 +108,8 @@ function Board({ xIsNext, sqrs, onPlay }) {
   let status;
   if (winner) {
     status = "Winner: " + winner;
+  } else if (isDraw) {
+    status = "Game over: a draw";
   } else {
     status = "Next player: " + (xIsNext ? "X" : "O");
   }
@@ -116,7 +128,7 @@ function Board({ xIsNext, sqrs, onPlay }) {
             }
           }
       }
-      boardSquares.push(<Square key={j} value={sqrs[j + 3 * i]} sty={winStyle} onSqrClik={() => do_Clik(j + 3 * i)} />);
+      boardSquares.push(<Square key={j} value={sqrs[j + 3 * i]} styleVar={winStyle} onSqrClik={() => do_Clik(j + 3 * i)} />);
       winStyle = { backgroundColor: '#fff', };
     }
     boardRows.push(<div key={i} className="board-row">{boardSquares}</div>);
