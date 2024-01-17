@@ -8,9 +8,11 @@ export default function Game() {
   const xIsNext = currentMove % 2 === 0;
   let isDraw = false;
   const currentSquares = history[currentMove];
-  function handlePlay(nextSquares, noSort) {
+  function handlePlay(nextSquares, i, noSort) {
     if (noSort) {
+    	let rowColArr = [[1, 1], [1, 2], [1, 3], [2, 1], [2, 2], [2, 3], [3, 1], [3, 2], [3, 3]];
         const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+        nextHistory[nextHistory.length - 1][9] = rowColArr[i];
         setHistory(nextHistory);
         setCurrentMove(nextHistory.length - 1);
     } else {
@@ -21,7 +23,8 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
   function mapHistory(history, sort) {
-      let theMap = history.map((squares, move) => {
+      const theMap = history.map((squares, move) => {
+    	let rowColMsg = "";
         let description;
         if (move > 0 && currentMove === move) {
           let noWinMsg = "";
@@ -33,14 +36,17 @@ export default function Game() {
                 isDraw = true;
             }
           }
+          rowColMsg = "; Row " + squares[9][0] + ', Col ' + squares[9][1];
+          description = 'You are at move #' + move + rowColMsg;
           return (
             <li key={move}>
-              <div>You are at move # {move} {noWinMsg}</div>
+              <div>{description} {noWinMsg}</div>
               <div>&nbsp;</div>
             </li>
         );
         } else if (move > 0 && currentMove !== move) {
-          description = 'Go to move #' + move;
+          rowColMsg = "; Row " + squares[9][0] + ', Col ' + squares[9][1];
+          description = 'Go to move #' + move + rowColMsg;
           return showMoveButton(move, description, jumpTo);
         } else {
           description = 'Go to game start';
@@ -96,10 +102,10 @@ function Board({ xIsNext, sqrs, onPlay, isDraw }) {
     } else {
       nextSquares[i] = "O";
     }
-    onPlay(nextSquares, true);
+    onPlay(nextSquares, i, true);
   }
   function onSort() {
-      onPlay(null, false);
+      onPlay(null, null, false);
   }
   const winnerArray = calculateWinner(sqrs);
   const winner = winnerArray[0];
