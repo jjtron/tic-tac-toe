@@ -1,1 +1,1 @@
-# react
+# tic-tac-toe
